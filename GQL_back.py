@@ -93,7 +93,7 @@ def next_question(req: NextReq):
         text = (resp.text or "").strip()
 
         # Strip code fences if the model wrapped JSON
-        if text.startswith("```
+        if text.startswith("```"):
             text = text[3:]
             if text.lstrip().lower().startswith("json"):
                 text = text.lstrip()[4:]

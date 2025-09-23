@@ -120,4 +120,4 @@ def next_question(req: NextReq):
         raise HTTPException(status_code=500, detail=f"Generation failed: {e}")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=9321)
+    uvicorn.run(app, host="0.0.0.0", port=9321)

@@ -11,18 +11,24 @@ import uvicorn
 # Google GenAI SDK
 from google import genai  # pip install google-genai
 
-# -------------- Configure API key here (server-side only) --------------
-GEMINI_API_KEY = "AIzaSyD_HJNKA3QwjBP7nf8ssdYYFAO8qPtOQKg"  # keep private; do NOT expose in frontend
-os.environ["GEMINI_API_KEY"] = GEMINI_API_KEY  # SDK expects this name [web:259][web:261]
-# ----------------------------------------------------------------------
+# ---------------- Config ----------------
+# Prefer environment variable in production:
+#   GEMINI_API_KEY set in your hosting provider
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyD_HJNKA3QwjBP7nf8ssdYYFAO8qPtOQKg")
+os.environ["GEMINI_API_KEY"] = GEMINI_API_KEY
 
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 app = FastAPI(title="Gemini Quiz API")
 
+# Allow Streamlit local; add your deployed frontend origin here when live
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8501", "http://127.0.0.1:8501"],
+    allow_origins=[
+        "http://localhost:8501",
+        "http://127.0.0.1:8501",
+        # "https://your-streamlit-app.onrender.com",  # add when deployed
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,9 +71,14 @@ Rules:
 
 def get_client() -> genai.Client:
     try:
-        return genai.Client()  # reads GEMINI_API_KEY from env [web:259]
+        return genai.Client()  # reads GEMINI_API_KEY from env
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gemini client init failed: {e}")
+
+# Root for generic health probes
+@app.get("/")
+def root():
+    return {"ok": True, "service": "Gemini Quiz API"}
 
 @app.get("/health")
 def health():
@@ -77,16 +88,12 @@ def health():
 def next_question(req: NextReq):
     client = get_client()
     prompt = build_prompt(req.category.strip(), req.difficulty.strip())
-
     try:
-        resp = client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=prompt,
-        )
+        resp = client.models.generate_content(model=GEMINI_MODEL, contents=prompt)
         text = (resp.text or "").strip()
 
         # Strip code fences if the model wrapped JSON
-        if text.startswith("```"):
+        if text.startswith("```
             text = text[3:]
             if text.lstrip().lower().startswith("json"):
                 text = text.lstrip()[4:]
@@ -120,4 +127,6 @@ def next_question(req: NextReq):
         raise HTTPException(status_code=500, detail=f"Generation failed: {e}")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=9321)
+    # Bind to 0.0.0.0 and $PORT for PaaS; default to 8000 locally
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run("gemini_quiz_backend:app", host="0.0.0.0", port=port)

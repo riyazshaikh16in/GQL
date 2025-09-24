@@ -12,6 +12,14 @@ st.set_page_config(page_title="Gully Quiz League", page_icon="💎", layout="wid
 st.markdown("""
 # <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Orbitron:wght@700;800&display=swap" rel="stylesheet">
 <style>
+:root{
+  --primary:#60a5fa;
+  --green:#22c55e;
+  --green2:#16a34a;
+  --red:#ef4444;
+  --red2:#b91c1c;
+}
+
 .stApp {
   background: radial-gradient(1400px 700px at 50% -10%, #0f1432 0%, #0b1121 50%, #080e1c 100%);
   color: #e6edff;
@@ -23,36 +31,68 @@ st.markdown("""
   background: linear-gradient(90deg, #d4b106 0%, #f6ff00 40%, #00e5ff 60%, #6c5ce7 100%);
   -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 6px 18px rgba(0,0,0,.55);
 }
+
 .card {
   border-radius: 20px; padding: 1.0rem 1.4rem;
   background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.035) 100%);
   border: 1px solid rgba(255,255,255,0.12);
   box-shadow: 0 24px 48px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
 }
-.q-text { font-size:22px; line-height:1.55; font-weight:700; color:#cbd5ff; } /* darker for visibility */
+.q-text { font-size:22px; line-height:1.55; font-weight:700; color:#cbd5ff; }
 
 .answer-tile {
-  width:100%; border-radius:14px; padding:14px 16px; text-align:left; font-size:18px; line-height:1.35;
+  width:100%; border-radius:14px; padding:16px 16px; text-align:left; font-size:18px; line-height:1.38;
   border:1px solid rgba(255,255,255,0.14);
   background: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.05) 100%);
   color:#e8f0ff; box-shadow:0 16px 30px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.06);
 }
-.answer-correct { background: linear-gradient(180deg,#0f6b3e 0%,#0b4a2c 100%) !important; border-color:#22c55e !important; color:#eafff5 !important; }
-.answer-wrong   { background: linear-gradient(180deg,#6b232c 0%,#46171d 100%) !important; border-color:#ef4444 !important; color:#ffecef !important; }
+.answer-correct { background: linear-gradient(180deg,#0f6b3e 0%,#0b4a2c 100%) !important; border-color:var(--green) !important; color:#eafff5 !important; }
+.answer-wrong   { background: linear-gradient(180deg,#6b232c 0%,#46171d 100%) !important; border-color:var(--red) !important; color:#ffecef !important; }
 .answer-dim     { opacity:.55; }
 
-.small-btn {
-  padding:.35rem .7rem; font-size:.9rem; border-radius:999px; border:1px solid rgba(255,255,255,.18);
-  background:linear-gradient(135deg,#5eead4 0%, #60a5fa 100%); color:#0b1220; font-weight:800;
+/* Style only our option buttons (keys start with sel_) */
+div.stButton > button[kind="secondary"] {
+  background: linear-gradient(135deg, #60a5fa 0%, #5eead4 100%) !important;
+  color: #071225 !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(255,255,255,.20) !important;
+  border-radius: 12px !important;
+  padding: .55rem .8rem !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.45) !important;
+}
+div.stButton > button[kind="secondary"]:disabled {
+  filter: grayscale(40%); opacity: .65;
+}
+            
+/* Blue checkbox-style selector */
+.check-btn {
+  display:inline-block; width:100%; padding:.55rem .8rem; border-radius:12px; text-align:center;
+  font-weight:800; color:#071225; 
+  background: linear-gradient(135deg, #60a5fa 0%, #5eead4 100%);
+  border:1px solid rgba(255,255,255,.18);
   box-shadow:0 10px 20px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.45);
+}
+.check-btn.disabled{
+  filter: grayscale(40%); opacity:.65; cursor:not-allowed;
 }
 
 .pill {
   display:inline-block; padding:.28rem .7rem; border-radius:999px; font-weight:800;
   margin-right:.5rem; font-size:.9rem; border:1px solid rgba(255,255,255,.18);
 }
-.pill-green { background:linear-gradient(135deg,#22c55e 0%, #16a34a 100%); color:#06130b; }
-.pill-red   { background:linear-gradient(135deg,#ef4444 0%, #b91c1c 100%); color:#1d0406; }
+.pill-green { background:linear-gradient(135deg,var(--green) 0%, var(--green2) 100%); color:#06130b; }
+.pill-red   { background:linear-gradient(135deg,var(--red) 0%, var(--red2) 100%); color:#1d0406; }
+
+/* Mobile tweaks */
+@media (max-width: 600px){
+  .kbc-title{ font-size:30px; margin:.2rem 0 .7rem 0; letter-spacing:.06em; }
+  .q-text{ font-size:18px; line-height:1.45; }
+  .card{ padding:.85rem 1rem; }
+  .answer-tile{ font-size:16px; padding:14px 14px; }
+  .pill{ font-size:.85rem; }
+  /* Reduce column gaps and stack answer columns vertically */
+  .block-container{ padding-top: .6rem; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -161,29 +201,37 @@ def render_option_row(label: str, text: str):
         elif is_correct: cls += " answer-correct"
         else: cls += " answer-dim"
 
-    col_text, col_btn = st.columns([8, 1])
+    col_text, col_btn = st.columns([8, 2])
     with col_text:
         st.markdown(f'<div class="{cls}">{label}) {text}</div>', unsafe_allow_html=True)
     with col_btn:
         disabled = st.session_state.selected is not None
-        if st.button("Select", key=f"sel_{label}", use_container_width=True, disabled=disabled):
+        # Single blue tick button (styled by CSS above)
+        if st.button("☑", key=f"sel_{label}", use_container_width=True, disabled=disabled, type="secondary"):
             st.session_state.selected = label
             finalize_outcome(label)
             st.rerun()
 
+
+# On wide screens: 2×2; on mobile we’ll still use two columns but they’ll stack nicely
+import sys
+is_mobile_like = st.session_state.get("_force_mobile", False)  # toggle as needed
+
 if st.session_state.question:
     opts = st.session_state.question["options"]
-    r1c1, r1c2 = st.columns(2, gap="large")
-    with r1c1:
+    if is_mobile_like:
         render_option_row("A", opts["A"])
-    with r1c2:
         render_option_row("B", opts["B"])
-
-    r2c1, r2c2 = st.columns(2, gap="large")
-    with r2c1:
         render_option_row("C", opts["C"])
-    with r2c2:
         render_option_row("D", opts["D"])
+    else:
+        r1c1, r1c2 = st.columns(2, gap="large")
+        with r1c1: render_option_row("A", opts["A"])
+        with r1c2: render_option_row("B", opts["B"])
+        r2c1, r2c2 = st.columns(2, gap="large")
+        with r2c1: render_option_row("C", opts["C"])
+        with r2c2: render_option_row("D", opts["D"])
+
 
 # ------------------- Explanation -------------------
 if st.session_state.question and st.session_state.selected is not None:
@@ -203,4 +251,3 @@ st.markdown(
     '</div>',
     unsafe_allow_html=True,
 )
-

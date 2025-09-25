@@ -17,7 +17,7 @@ from google import genai  # pip install google-genai
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyD_HJNKA3QwjBP7nf8ssdYYFAO8qPtOQKg")
 os.environ["GEMINI_API_KEY"] = GEMINI_API_KEY
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "Gemini 2.5 Flash-Lite")
 
 app = FastAPI(title="Gemini Quiz API")
 

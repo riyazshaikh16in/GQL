@@ -7,7 +7,7 @@ import requests
 BACKEND = "https://gql-backend.onrender.com/quiz/next"
 
 # ------------------- Page config & theme -------------------
-st.set_page_config(page_title="Gully Quiz League", page_icon="💎", layout="wide")
+st.set_page_config(page_title="Quiz Master", page_icon="💎", layout="wide")
 
 st.markdown("""
 # <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Orbitron:wght@700;800&display=swap" rel="stylesheet">
@@ -141,7 +141,7 @@ def reset_game():
 
 
 # ------------------- Title -------------------
-st.markdown('<div class="kbc-title">Gully Quiz League</div>', unsafe_allow_html=True)
+st.markdown('<div class="kbc-title">Quiz Master</div>', unsafe_allow_html=True)
 
 # ------------------- Sidebar -------------------
 
@@ -149,8 +149,8 @@ with st.sidebar:
     st.header("Game Settings")
     st.session_state.category = st.selectbox(
         "Category",
-        ["general knowledge", "science", "history", "geography", "biology", "sports"],
-        index=["general knowledge","science","history","geography","biology","sports"].index(st.session_state.category),
+        ["general knowledge", "mathematics", "science", "history", "geography", "biology", "sports"],
+        index=["mathematics","general knowledge","science","history","geography","biology","sports"].index(st.session_state.category),
     )
     st.session_state.difficulty = st.selectbox(
         "Difficulty",

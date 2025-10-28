@@ -59,7 +59,7 @@ def is_seen(cat: str, diff: str, q: str) -> bool:
 
 # ---------------- Models & I/O ----------------
 class NextReq(BaseModel):
-    category: str = Field(..., description="science, history, geography, sports, biology, general knowledge")
+    category: str = Field(..., description="mathematics, science, history, geography, sports, biology, general knowledge")
     difficulty: str = Field("progressive", description="easy|medium|hard|progressive")
 
 class QuizItem(BaseModel):

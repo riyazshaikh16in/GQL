@@ -150,8 +150,14 @@ with st.sidebar:
     st.session_state.category = st.selectbox(
         "Category",
         ["general knowledge", "mathematics", "science", "history", "geography", "biology", "sports"],
-        index=["mathematics","general knowledge","science","history","geography","biology","sports"].index(st.session_state.category),
+        index=["general knowledge", "mathematics", "science", "history", "geography", "biology", "sports"].index(st.session_state.category),
     )
+    
+    # st.session_state.category = st.selectbox(
+    #     "Category",
+    #     ["general knowledge", "mathematics", "science", "history", "geography", "biology", "sports"],
+    #     index=["mathematics","general knowledge","science","history","geography","biology","sports"].index(st.session_state.category),
+    # )
     st.session_state.difficulty = st.selectbox(
         "Difficulty",
         ["easy", "medium", "hard", "progressive"],
